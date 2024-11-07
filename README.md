@@ -11,6 +11,8 @@
 
 A cache layer for the Yamli service to avoid unnecessary remote lookups by caching frequently requested data locally.
 
+[LIVE DEMO](https://ragaeeb.github.io/yamli-cache)
+
 ## Features
 
 -   Caches transliteration responses from the Yamli API.
