@@ -1,0 +1,51 @@
+{
+    "name": "yamli-cache",
+    "types": "dist/index.d.ts",
+    "version": "1.0.0",
+    "description": "A cache for Yamli to avoid remote lookups unnecessarily.",
+    "source": "src/index.ts",
+    "type": "module",
+    "scripts": {
+        "build": "parcel build",
+        "test": "bun test --coverage"
+    },
+    "keywords": [
+        "yamli",
+        "cache",
+        "caching",
+        "arabic"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "github.com:ragaeeb/yamli-cache.git"
+    },
+    "bugs": {
+        "url": "https://github.com/ragaeeb/yamli-cache/issues"
+    },
+    "homepage": "https://github.com/ragaeeb/yamli-cache#README",
+    "author": "Ragaeeb Haq",
+    "license": "MIT",
+    "files": [
+        "dist/main.js",
+        "dist/main.js.map",
+        "dist/*.d.ts"
+    ],
+    "devDependencies": {
+        "@eslint/js": "^9.14.0",
+        "@parcel/packager-ts": "^2.12.0",
+        "@parcel/transformer-typescript-types": "^2.12.0",
+        "@semantic-release/changelog": "^6.0.3",
+        "@types/bun": "^1.1.13",
+        "@types/eslint__js": "^8.42.3",
+        "dotenv-vault": "^1.26.2",
+        "eslint": "^9.14.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-import-x": "^4.4.0",
+        "eslint-plugin-perfectionist": "^3.9.1",
+        "eslint-plugin-prettier": "^5.2.1",
+        "parcel": "^2.12.0",
+        "prettier": "^3.3.3",
+        "semantic-release": "^24.2.0",
+        "typescript-eslint": "^8.13.0"
+    }
+}
