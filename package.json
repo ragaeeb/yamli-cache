@@ -1,12 +1,13 @@
 {
     "name": "yamli-cache",
-    "types": "dist/index.d.ts",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A cache for Yamli to avoid remote lookups unnecessarily.",
+    "main": "dist/main.js",
+    "types": "dist/index.d.ts",
     "source": "src/index.ts",
     "type": "module",
     "scripts": {
-        "build": "parcel build",
+        "build": "parcel build src/index.ts",
         "test": "bun test --coverage"
     },
     "keywords": [
