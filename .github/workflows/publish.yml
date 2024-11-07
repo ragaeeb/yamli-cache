@@ -19,6 +19,11 @@ jobs:
                   fetch-depth: 0
                   persist-credentials: true
 
+            - name: Use Node.js 21.x
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 21.x
+
             - name: Set up Bun
               uses: oven-sh/setup-bun@v2
               with:
