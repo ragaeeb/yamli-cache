@@ -32,7 +32,7 @@ describe('mapping', () => {
             expect(mockRequest._responseCallback).toHaveBeenCalledTimes(1);
             expect(mockRequest._responseCallback).toHaveBeenCalledWith(
                 JSON.stringify({
-                    r: 'a\\/0|b\\/1',
+                    r: 'a/0|b/1',
                     serverBuild: '5515',
                     staleClient: false,
                     w: 'example',

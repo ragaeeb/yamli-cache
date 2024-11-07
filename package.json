@@ -1,6 +1,6 @@
 {
     "name": "yamli-cache",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "A cache for Yamli to avoid remote lookups unnecessarily.",
     "main": "dist/main.js",
     "types": "dist/index.d.ts",

@@ -43,7 +43,7 @@ describe('index', () => {
 
             expect(mockRequest._responseCallback).toHaveBeenCalledTimes(1);
             expect(mockRequest._responseCallback).toHaveBeenCalledWith(
-                `{"r":"عبد\\\\/0|عبض\\\\/1","serverBuild":"5515","staleClient":false,"w":"3bd"}`,
+                `{"r":"عبد/0|عبض/1","serverBuild":"5515","staleClient":false,"w":"3bd"}`,
             );
 
             expect(originalFunction).not.toHaveBeenCalled();

@@ -17,7 +17,7 @@ const mapCacheValuesToResponse = (key: string, values: string): string => {
     return JSON.stringify({
         r: values
             .split('|')
-            .map((variant, index) => `${variant}\\/${index}`)
+            .map((variant, index) => `${variant}/${index}`)
             .join('|'),
         serverBuild: DEFAULT_SERVER_BUILD,
         staleClient: false,
