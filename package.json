@@ -1,0 +1,44 @@
+{
+  "name": "yamli-cache",
+  "module": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "version": "1.0.0",
+  "description": "A cache for Yamli to avoid remote lookups unnecessarily.",
+  "source": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "test": "bun test"
+  },
+  "keywords": [
+    "yamli",
+    "cache",
+    "caching",
+    "arabic"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "github.com:ragaeeb/yamli-cache.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ragaeeb/yamli-cache/issues"
+  },
+  "homepage": "https://github.com/ragaeeb/yamli-cache#README",
+  "author": "Ragaeeb Haq",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.14.0",
+    "@types/bun": "latest",
+    "@semantic-release/changelog": "^6.0.3",
+    "@types/eslint__js": "^8.42.3",
+    "dotenv-vault": "^1.26.2",
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-perfectionist": "^3.9.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3",
+    "semantic-release": "^24.2.0",
+    "typescript-eslint": "^8.13.0"
+  }
+}
