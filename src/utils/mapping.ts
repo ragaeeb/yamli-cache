@@ -13,17 +13,23 @@ const DEFAULT_CHECKIN_RESPONSE = {
     showPowered: true,
 };
 
-const mapCacheValuesToResponse = (key: string, values: string[]): string => {
+const mapCacheValuesToResponse = (key: string, values: string): string => {
     return JSON.stringify({
-        r: values.map((variant, index) => `${variant}\\/${index}`).join('|'),
+        r: values
+            .split('|')
+            .map((variant, index) => `${variant}\\/${index}`)
+            .join('|'),
         serverBuild: DEFAULT_SERVER_BUILD,
         staleClient: false,
         w: key,
     });
 };
 
-export const mapResponseToCacheValues = (response: string): string[] => {
-    return response.split('|').map((variant) => variant.replace(/\/\d+$/, ''));
+export const mapResponseToCacheValues = (response: string): string => {
+    return response
+        .split('|')
+        .map((variant) => variant.replace(/\/\d+$/, ''))
+        .join('|');
 };
 
 export const applyCachedValueToRequest = (url: string, cache: YamliCache, a: YamliRequest): boolean => {

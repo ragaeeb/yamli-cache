@@ -1,16 +1,18 @@
 import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 
 import type { YamliType } from './types/private.ts';
 import type { YamliCache } from './types/public.ts';
 
 import { initCache } from './index.ts';
+import { CHECKIN_ENDPOINT, TRANSLITERATE_ENDPOINT } from './utils/constants.ts';
 
 describe('index', () => {
     let Yamli: YamliType;
     let cache: YamliCache;
 
-    beforeEach(() => {
-        // Freshly initialize Yamli and cache for each test
+    beforeEach(async () => {
         Yamli = {
             global: {
                 reportImpression: mock(),
@@ -25,100 +27,76 @@ describe('index', () => {
             },
         };
 
-        cache = {};
+        cache = JSON.parse(await fs.readFile(path.join('mock', 'yamli.json'), 'utf-8'));
     });
 
     describe('initCache', () => {
-        describe('disableAnalytics', () => {
-            it.only('should replace all report functions with MockedFunction', () => {
-                initCache(Yamli);
-                expect(Yamli.global.reportImpression).toBeInstanceOf(Function);
-                expect(Yamli.global.reportTyped).toBeInstanceOf(Function);
-                expect(Yamli.global.reportTransliterationSelection).toBeInstanceOf(Function);
-                expect(Yamli.global.reportImpressionTime).toBeInstanceOf(Function);
-            });
+        it('should respond with cached value', () => {
+            const originalFunction = Yamli.I.SXHRData.start;
+
+            initCache(Yamli, cache);
+            const mockRequest = {
+                _responseCallback: mock(),
+            };
+
+            Yamli.I.SXHRData.start(mockRequest, `http${TRANSLITERATE_ENDPOINT}word=3bd`, null);
+
+            expect(mockRequest._responseCallback).toHaveBeenCalledTimes(1);
+            expect(mockRequest._responseCallback).toHaveBeenCalledWith(
+                `{"r":"عبد\\\\/0|عبض\\\\/1","serverBuild":"5515","staleClient":false,"w":"3bd"}`,
+            );
+
+            expect(originalFunction).not.toHaveBeenCalled();
         });
 
-        describe('mapCacheValuesToResponse', () => {
-            it('should map cache values to response format string', () => {
-                const expectedResponse = JSON.stringify({
-                    r: 'value1\\/0|value2\\/1',
-                    serverBuild: DEFAULT_SERVER_BUILD,
-                    staleClient: false,
-                    w: testKey,
-                });
-                const response = mapCacheValuesToResponse(testKey, testValues);
-                expect(response).toBe(expectedResponse);
-            });
+        it('should respond with checkin mock', () => {
+            const originalFunction = Yamli.I.SXHRData.start;
+
+            initCache(Yamli, cache);
+            const mockRequest = {
+                _responseCallback: mock(),
+            };
+
+            Yamli.I.SXHRData.start(mockRequest, `http${CHECKIN_ENDPOINT}`, null);
+
+            expect(mockRequest._responseCallback).toHaveBeenCalledTimes(1);
+            expect(mockRequest._responseCallback).toHaveBeenCalledWith(
+                `{"adInfo":{},"authorization":"authorized","options":{},"prefs":{},"serverBuild":"5515","showHint":true,"showPowered":true}`,
+            );
+
+            expect(originalFunction).not.toHaveBeenCalled();
         });
 
-        describe('initCache', () => {
-            let mockRequest: YamliRequest;
+        it('should cache the new word if it is alphanumeric', () => {
+            const cacheRef = initCache(Yamli, cache);
+            const mockRequest = {
+                _responseCallback: mock(),
+            };
+            const originalMockRequest = { ...mockRequest };
 
-            beforeEach(() => {
-                mockRequest = {
-                    _responseCallback: mock(),
-                };
-            });
+            Yamli.I.SXHRData.start(mockRequest, `http${TRANSLITERATE_ENDPOINT}word=abusuhayla`, null);
 
-            it('should disable analytics and return a cache', () => {
-                const resultCache = initCache(Yamli);
-                expect(Yamli.global.reportImpression).toBeInstanceOf(Function);
-                expect(Yamli.global.reportTyped).toBeInstanceOf(Function);
-                expect(Yamli.global.reportTransliterationSelection).toBeInstanceOf(Function);
-                expect(Yamli.global.reportImpressionTime).toBeInstanceOf(Function);
-                expect(resultCache).toEqual({});
-            });
+            mockRequest._responseCallback(
+                `{"r":"a\\/0|b\\/1","serverBuild":"5515","staleClient":false,"w":"abusuhayla"}`,
+            );
 
-            it('should apply cached response to requests', () => {
-                const resultCache = initCache(Yamli, cache);
-                const url = `${TRANSLITERATE_ENDPOINT}?word=example`;
+            expect(cacheRef['abusuhayla']).toEqual('a|b');
+            expect(originalMockRequest._responseCallback).toHaveBeenCalledTimes(1);
+        });
 
-                // Mocking original SXHRData.start call to check application of cache
-                Yamli.I.SXHRData.start.mockImplementation((req, reqUrl, b) => {
-                    expect(applyCachedValueToRequest(reqUrl, resultCache, req)).toBe(true);
-                });
+        it('should not cache the new word if it is not alphanumeric', () => {
+            const cacheRef = initCache(Yamli, cache);
+            const mockRequest = {
+                _responseCallback: mock(),
+            };
+            const originalMockRequest = { ...mockRequest };
 
-                Yamli.I.SXHRData.start(mockRequest, url, null);
-            });
+            Yamli.I.SXHRData.start(mockRequest, `http${TRANSLITERATE_ENDPOINT}word=$$$`, null);
 
-            it('should call original response callback after processing', () => {
-                const resultCache = initCache(Yamli, cache);
-                const url = `${TRANSLITERATE_ENDPOINT}?word=test`;
-                const mockResponse = JSON.stringify({ r: 'response\\/0', w: 'test' });
+            mockRequest._responseCallback(`{"r":"a\\/0|b\\/1","serverBuild":"5515","staleClient":false,"w":"$$$"}`);
 
-                // Mock original function and response callback
-                const originalFunction = mock((a: YamliRequest, url: string, b: any) => {
-                    a._responseCallback(mockResponse);
-                });
-                Yamli.I.SXHRData.start = originalFunction;
-
-                Yamli.I.SXHRData.start(mockRequest, url, null);
-                mockRequest._responseCallback(mockResponse);
-
-                // Ensure response was processed
-                expect(originalFunction).toHaveBeenCalled();
-                expect(mockRequest._responseCallback).toHaveBeenCalledWith(mockResponse);
-                expect(resultCache['test']).toEqual(['response']);
-            });
-
-            it('should not modify cache if response format is invalid', () => {
-                const resultCache = initCache(Yamli, cache);
-                const url = `${TRANSLITERATE_ENDPOINT}?word=invalid`;
-                const invalidResponse = 'invalid response';
-
-                // Mock original function and response callback
-                const originalFunction = mock((a: YamliRequest, url: string, b: any) => {
-                    a._responseCallback(invalidResponse);
-                });
-                Yamli.I.SXHRData.start = originalFunction;
-
-                Yamli.I.SXHRData.start(mockRequest, url, null);
-                mockRequest._responseCallback(invalidResponse);
-
-                // Ensure the cache was not modified
-                expect(resultCache['invalid']).toBeUndefined();
-            });
+            expect(cacheRef['$$$']).toBeUndefined();
+            expect(originalMockRequest._responseCallback).toHaveBeenCalledTimes(1);
         });
     });
 });

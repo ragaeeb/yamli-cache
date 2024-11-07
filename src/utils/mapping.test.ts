@@ -9,7 +9,7 @@ describe('mapping', () => {
     describe('mapResponseToCacheValues', () => {
         it('should replace all report functions with MockedFunction', () => {
             const cacheValues = mapResponseToCacheValues('a/0|b/1|c/1|d/1|e/1');
-            expect(cacheValues).toEqual(['a', 'b', 'c', 'd', 'e']);
+            expect(cacheValues).toEqual('a|b|c|d|e');
         });
     });
 
@@ -25,7 +25,7 @@ describe('mapping', () => {
         it('should apply cached transliterate response if endpoint matches', () => {
             const result = applyCachedValueToRequest(
                 `https${TRANSLITERATE_ENDPOINT}word=example`,
-                { example: ['a', 'b'] },
+                { example: ['a', 'b'].join('|') },
                 mockRequest,
             );
             expect(result).toBe(true);
@@ -47,7 +47,7 @@ describe('mapping', () => {
         });
 
         it('should apply default check-in response if endpoint matches', () => {
-            const url = `https${CHECKIN_ENDPOINT}key=value`;
+            const url = `https${CHECKIN_ENDPOINT}`;
             const result = applyCachedValueToRequest(url, {}, mockRequest);
             expect(result).toBe(true);
             expect(mockRequest._responseCallback).toHaveBeenCalledWith(
