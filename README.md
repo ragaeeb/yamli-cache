@@ -7,7 +7,7 @@
 ![GitHub Release](https://img.shields.io/github/v/release/ragaeeb/yamli-cache)
 ![typescript](https://badgen.net/badge/icon/typescript?icon=typescript&label&color=blue)
 ![npm](https://img.shields.io/npm/dm/yamli-cache)
-[![Size](https://deno.bundlejs.com/badge?q=yamli-cache@1.0.0&badge=detailed)](https://bundlejs.com/?q=yamli-cache%401.0.0)
+[![Size](https://deno.bundlejs.com/badge?q=yamli-cache@1.0.1&badge=detailed)](https://bundlejs.com/?q=yamli-cache%401.0.1)
 
 A cache layer for the Yamli service to avoid unnecessary remote lookups by caching frequently requested data locally.
 
