@@ -1,19 +1,21 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import { describe, expect, it, mock } from "bun:test";
 
-import type { YamliType } from '../types/private';
+import type { YamliType } from "../types/private.ts";
 
-import { disableAnalytics } from './ads.ts';
+import { disableAnalytics } from "./ads.ts";
 
-describe('ads', () => {
-    let Yamli: YamliType;
+describe("utils/ads", () => {
+    it("replaces Yamli analytics hooks with no-op functions", () => {
+        const reportSpy = mock(() => {
+            throw new Error("should not be called");
+        });
 
-    beforeEach(() => {
-        Yamli = {
+        const Yamli: YamliType = {
             global: {
-                reportImpression: mock(),
-                reportImpressionTime: mock(),
-                reportTransliterationSelection: mock(),
-                reportTyped: mock(),
+                reportImpression: reportSpy,
+                reportImpressionTime: reportSpy,
+                reportTransliterationSelection: reportSpy,
+                reportTyped: reportSpy,
             },
             I: {
                 SXHRData: {
@@ -21,15 +23,14 @@ describe('ads', () => {
                 },
             },
         };
-    });
 
-    describe('disableAnalytics', () => {
-        it('should replace all report functions with MockedFunction', () => {
-            disableAnalytics(Yamli);
-            expect(Yamli.global.reportImpression).toBeInstanceOf(Function);
-            expect(Yamli.global.reportTyped).toBeInstanceOf(Function);
-            expect(Yamli.global.reportTransliterationSelection).toBeInstanceOf(Function);
-            expect(Yamli.global.reportImpressionTime).toBeInstanceOf(Function);
-        });
+        disableAnalytics(Yamli);
+
+        expect(typeof Yamli.global.reportImpression).toBe("function");
+        expect(Yamli.global.reportImpression).toBe(Yamli.global.reportTyped);
+        expect(Yamli.global.reportImpressionTime).toBe(
+            Yamli.global.reportTransliterationSelection,
+        );
+        expect(() => Yamli.global.reportImpression()).not.toThrow();
     });
 });

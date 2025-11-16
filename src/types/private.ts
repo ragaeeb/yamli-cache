@@ -16,7 +16,7 @@ export interface YamliType {
     };
     I: {
         SXHRData: {
-            start(request: YamliRequest, url: string, b: any): void;
+            start(request: YamliRequest, url: string, b: unknown): void;
         };
     };
 }

@@ -1,4 +1,4 @@
-import type { YamliType } from '../types/private';
+import type { YamliType } from "../types/private.ts";
 
 const MockedFunction = () => {};
 

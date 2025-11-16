@@ -1,9 +1,16 @@
-import type { YamliRequest, YamliResponse, YamliType } from './types/private.ts';
-import type { YamliCache } from './types/public.ts';
+import type {
+    YamliRequest,
+    YamliResponse,
+    YamliType,
+} from "./types/private.ts";
+import type { YamliCache } from "./types/public.ts";
 
-import { disableAnalytics } from './utils/ads.ts';
-import { ALPHANUMERIC_REGEX } from './utils/constants.ts';
-import { applyCachedValueToRequest, mapResponseToCacheValues } from './utils/mapping.ts';
+import { disableAnalytics } from "./utils/ads.ts";
+import { ALPHANUMERIC_REGEX } from "./utils/constants.ts";
+import {
+    applyCachedValueToRequest,
+    mapResponseToCacheValues,
+} from "./utils/mapping.ts";
 
 /**
  * Initializes and configures a cache for Yamli requests to intercept and store responses.
@@ -23,11 +30,14 @@ import { applyCachedValueToRequest, mapResponseToCacheValues } from './utils/map
  * const cache = initCache(Yamli, initialCache);
  * // cache now contains initial values and intercepts future requests to populate more data.
  */
-export const initCache = (Yamli: YamliType, initialValue: YamliCache = {}): YamliCache => {
+export const initCache = (
+    Yamli: YamliType,
+    initialValue: YamliCache = {},
+): YamliCache => {
     const originalFunction = Yamli.I.SXHRData.start;
     const cache: YamliCache = { ...initialValue };
 
-    Yamli.I.SXHRData.start = (a: YamliRequest, url: string, b: any) => {
+    Yamli.I.SXHRData.start = (a: YamliRequest, url: string, b: unknown) => {
         if (applyCachedValueToRequest(url, cache, a)) {
             return;
         }
@@ -42,7 +52,7 @@ export const initCache = (Yamli: YamliType, initialValue: YamliCache = {}): Yaml
                 if (result.w && ALPHANUMERIC_REGEX.test(result.w)) {
                     cache[result.w] = mapResponseToCacheValues(result.r);
                 }
-            } catch (err: any) {
+            } catch (_error: unknown) {
                 // ignore
             }
 

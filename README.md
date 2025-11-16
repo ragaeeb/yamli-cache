@@ -15,9 +15,11 @@ A cache layer for the Yamli service to avoid unnecessary remote lookups by cachi
 
 ## Features
 
--   Caches transliteration responses from the Yamli API.
--   Reduces redundant network requests by checking cached values first.
--   Allows for customization with preloaded initial cache values.
+-   Intercepts transliteration requests and serves cached payloads when available to minimize Yamli round-trips.
+-   Ships an offline-friendly mock for Yamli check-in requests so initialization can complete without a network hop.
+-   Exposes a `disableAnalytics` helper that no-ops every Yamli reporter, keeping embedded widgets private.
+-   Accepts preloaded cache data which is enriched as new responses arrive, making it easy to persist via `localStorage` or IndexedDB.
+-   Bundled with [tsdown](https://tsdown.dev) so consumers get a tiny ESM build plus first-class TypeScript declarations.
 
 ## Installation
 
@@ -82,6 +84,30 @@ Initializes a cache for Yamli requests to intercept and store responses, reducin
 #### Returns
 
 -   `YamliCache` - The initialized cache object that stores words and their mapped transliterations.
+
+### `disableAnalytics`
+
+Disables every analytics reporter exposed on the Yamli global so that embedding the widget in privacy-sensitive contexts does not produce telemetry.
+
+#### Parameters
+
+-   `Yamli` - The Yamli integration object that exposes the `global` analytics reporters.
+
+#### Returns
+
+-   `void` - The reporters are replaced in-place with no-op functions.
+
+## Development
+
+This project uses the [`tsdown`](https://tsdown.dev) CLI behind a Bun wrapper script (`scripts/tsdown.ts`). The config lives at `tsdown.config.ts` and emits the optimized ESM bundle plus `.d.ts` files under `dist/`.
+
+```bash
+bun run build  # Executes scripts/tsdown.ts which shells out to tsdown
+bun test       # Runs the Bun-based unit test suite
+bun run lint   # Formats and lints the project with Biome
+```
+
+When upgrading tooling, run `bun update --latest` so `package.json` and `bun.lockb` stay in sync.
 
 ## License
 

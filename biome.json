@@ -1,0 +1,26 @@
+{
+    "$schema": "https://biomejs.dev/schemas/2.3.5/schema.json",
+    "files": {
+        "includes": [
+            "src/**",
+            "scripts/**",
+            "package.json",
+            "tsconfig*.json",
+            "tsdown.config.ts",
+            "README.md",
+            "AGENTS.MD",
+            "biome.json"
+        ]
+    },
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4
+    },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true
+        }
+    }
+}

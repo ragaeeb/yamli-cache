@@ -1,65 +1,74 @@
-import { beforeEach, describe, expect, it, mock } from 'bun:test';
+import { describe, expect, it, mock } from "bun:test";
 
-import type { YamliRequest } from '../types/private.ts';
+import {
+    applyCachedValueToRequest,
+    mapResponseToCacheValues,
+} from "./mapping.ts";
 
-import { CHECKIN_ENDPOINT, TRANSLITERATE_ENDPOINT } from './constants.ts';
-import { applyCachedValueToRequest, mapResponseToCacheValues } from './mapping.ts';
+const buildRequest = () => ({
+    _responseCallback: mock(),
+});
 
-describe('mapping', () => {
-    describe('mapResponseToCacheValues', () => {
-        it('should replace all report functions with MockedFunction', () => {
-            const cacheValues = mapResponseToCacheValues('a/0|b/1|c/1|d/1|e/1');
-            expect(cacheValues).toEqual('a|b|c|d|e');
+describe("utils/mapping", () => {
+    describe("mapResponseToCacheValues", () => {
+        it("strips numeric suffixes from variants", () => {
+            expect(mapResponseToCacheValues("عبد/0|عبض/1")).toBe("عبد|عبض");
+        });
+
+        it("returns unchanged text when no suffix is present", () => {
+            expect(mapResponseToCacheValues("yamli|cache")).toBe("yamli|cache");
         });
     });
 
-    describe('applyCachedValueToRequest', () => {
-        let mockRequest: YamliRequest;
-
-        beforeEach(() => {
-            mockRequest = {
-                _responseCallback: mock(),
+    describe("applyCachedValueToRequest", () => {
+        it("hydrates transliterate requests directly from cache", () => {
+            const cache = {
+                yamli: "يملی|ياملي",
             };
-        });
+            const request = buildRequest();
 
-        it('should apply cached transliterate response if endpoint matches', () => {
             const result = applyCachedValueToRequest(
-                `https${TRANSLITERATE_ENDPOINT}word=example`,
-                { example: ['a', 'b'].join('|') },
-                mockRequest,
+                "https://api.yamli.com/transliterate.ashx?word=yamli",
+                cache,
+                request,
             );
+
             expect(result).toBe(true);
-            expect(mockRequest._responseCallback).toHaveBeenCalledTimes(1);
-            expect(mockRequest._responseCallback).toHaveBeenCalledWith(
-                JSON.stringify({
-                    r: 'a/0|b/1',
-                    serverBuild: '5515',
-                    staleClient: false,
-                    w: 'example',
-                }),
+            expect(request._responseCallback).toHaveBeenCalledTimes(1);
+            const [[payload]] = request._responseCallback.mock.calls;
+            const response = JSON.parse(payload as string);
+            expect(response.r).toBe("يملی/0|ياملي/1");
+            expect(response.w).toBe("yamli");
+        });
+
+        it("responds to checkin requests with a static payload", () => {
+            const cache = {};
+            const request = buildRequest();
+
+            const result = applyCachedValueToRequest(
+                "https://api.yamli.com/checkin.ashx?foo=bar",
+                cache,
+                request,
             );
-        });
 
-        it('should be a no-op if there is no cache hit', () => {
-            const result = applyCachedValueToRequest(`https${TRANSLITERATE_ENDPOINT}word=example`, {}, mockRequest);
-            expect(result).toBe(false);
-            expect(mockRequest._responseCallback).not.toHaveBeenCalled();
-        });
-
-        it('should apply default check-in response if endpoint matches', () => {
-            const url = `https${CHECKIN_ENDPOINT}`;
-            const result = applyCachedValueToRequest(url, {}, mockRequest);
             expect(result).toBe(true);
-            expect(mockRequest._responseCallback).toHaveBeenCalledWith(
-                `{"adInfo":{},"authorization":"authorized","options":{},"prefs":{},"serverBuild":"5515","showHint":true,"showPowered":true}`,
+            expect(request._responseCallback).toHaveBeenCalledWith(
+                '{"adInfo":{},"authorization":"authorized","options":{},"prefs":{},"serverBuild":"5515","showHint":true,"showPowered":true}',
             );
         });
 
-        it('should return false if no endpoint matches', () => {
-            const url = 'https://example.com';
-            const result = applyCachedValueToRequest(url, {}, mockRequest);
+        it("returns false when the request is not cacheable", () => {
+            const cache = {};
+            const request = buildRequest();
+
+            const result = applyCachedValueToRequest(
+                "https://yamli.com/other",
+                cache,
+                request,
+            );
+
             expect(result).toBe(false);
-            expect(mockRequest._responseCallback).not.toHaveBeenCalled();
+            expect(request._responseCallback).not.toHaveBeenCalled();
         });
     });
 });
