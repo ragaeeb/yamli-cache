@@ -14,15 +14,15 @@ jobs:
             pull-requests: none
 
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v5
               with:
                   fetch-depth: 0
                   persist-credentials: true
 
-            - name: Use Node.js 21.x
-              uses: actions/setup-node@v4
+            - name: Use Node.js 22.x
+              uses: actions/setup-node@v6
               with:
-                  node-version: 21.x
+                  node-version: 22.x
 
             - name: Set up Bun
               uses: oven-sh/setup-bun@v2
